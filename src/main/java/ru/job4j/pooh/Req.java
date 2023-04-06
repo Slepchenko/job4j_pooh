@@ -1,5 +1,7 @@
 package ru.job4j.pooh;
 
+import java.util.Arrays;
+
 public class Req {
 
     private final String httpRequestType;
@@ -15,8 +17,15 @@ public class Req {
     }
 
     public static Req of(String content) {
-        /* TODO parse a content */
-        return new Req(null, null, null, null);
+        String[] lines = content.split(System.lineSeparator());
+        String[] types = lines[0].split(" ");
+        String[] modes = types[1].split("/");
+        String param = null;
+        if (lines.length > 4 && lines[lines.length - 2].equals("")) {
+            param = lines[lines.length -1];
+        }
+
+        return new Req(types[0], modes[1], modes[2], param);
     }
 
     public String httpRequestType() {
