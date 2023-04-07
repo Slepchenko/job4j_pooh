@@ -8,6 +8,8 @@ public class Req {
     private final String poohMode;
     private final String sourceName;
     private final String param;
+    private final static String POST = "POST";
+    private final static String GET = "GET";
 
     public Req(String httpRequestType, String poohMode, String sourceName, String param) {
         this.httpRequestType = httpRequestType;
@@ -18,14 +20,20 @@ public class Req {
 
     public static Req of(String content) {
         String[] lines = content.split(System.lineSeparator());
-        String[] types = lines[0].split(" ");
-        String[] modes = types[1].split("/");
-        String param = null;
-        if (lines.length > 4 && lines[lines.length - 2].equals("")) {
-            param = lines[lines.length -1];
-        }
-
-        return new Req(types[0], modes[1], modes[2], param);
+        String type = lines[0].split(" ")[0];
+        String[] modes = lines[0].split(" ")[1].split("/");
+        Req req = null;
+       if (POST.equals(type)) {
+           req = new Req(type, modes[1], modes[2], lines[lines.length-1]);
+       }
+       if (GET.equals(type)) {
+           String param = "";
+           if (modes.length > 3) {
+               param = modes[3];
+           }
+           req = new Req(type, modes[1], modes[2], param);
+       }
+        return req;
     }
 
     public String httpRequestType() {
