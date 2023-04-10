@@ -1,7 +1,5 @@
 package ru.job4j.pooh;
 
-import java.util.Arrays;
-
 public class Req {
 
     private final String httpRequestType;
