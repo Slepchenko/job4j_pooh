@@ -21,16 +21,16 @@ public class Req {
         String type = lines[0].split(" ")[0];
         String[] modes = lines[0].split(" ")[1].split("/");
         Req req = null;
-       if (POST.equals(type)) {
-           req = new Req(type, modes[1], modes[2], lines[lines.length-1]);
-       }
-       if (GET.equals(type)) {
-           String param = "";
-           if (modes.length > 3) {
-               param = modes[3];
-           }
-           req = new Req(type, modes[1], modes[2], param);
-       }
+        if (POST.equals(type)) {
+            req = new Req(type, modes[1], modes[2], lines[lines.length - 1]);
+        }
+        if (GET.equals(type)) {
+            String param = "";
+            if (modes.length > 3) {
+                param = modes[3];
+            }
+            req = new Req(type, modes[1], modes[2], param);
+        }
         return req;
     }
 
