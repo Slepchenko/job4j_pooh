@@ -18,6 +18,6 @@ public class QueueService implements Service {
         if ("GET".equals(req.httpRequestType())) {
             return new Resp(queue.getOrDefault(req.getSourceName(), clq).poll(), "200");
         }
-        return null;
+        return new Resp("", "204");
     }
 }
