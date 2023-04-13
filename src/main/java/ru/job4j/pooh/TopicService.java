@@ -5,24 +5,34 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class TopicService implements Service {
+
+    private Map<String, ConcurrentLinkedQueue<String>> queue = new ConcurrentHashMap<>();
+    private Map<String, ConcurrentLinkedQueue<String>> recipients = new ConcurrentHashMap<>();
+
     @Override
     public Resp process(Req req) {
-        Map<String, ConcurrentLinkedQueue<String>> topic = new ConcurrentHashMap<>();
-        Map<String, ConcurrentLinkedQueue<String>> ownTopic = new ConcurrentHashMap<>();
-        ConcurrentLinkedQueue<String> clq = new ConcurrentLinkedQueue<>();
+
+
         if ("POST".equals(req.httpRequestType())) {
-            topic.putIfAbsent(req.getSourceName(), new ConcurrentLinkedQueue<>());
-            topic.get(req.getSourceName()).add(
+            queue.putIfAbsent(req.getSourceName(), new ConcurrentLinkedQueue<>());
+            queue.get(req.getSourceName()).add(
                     req.httpRequestType() + " " + req.getSourceName() + " " + req.getPoohMode() + " " + req.getParam());
+            if (queue.get(req.getSourceName()) == null) {
+                return new Resp("", "204");
+            }
             return new Resp(req.getParam(), "200");
         }
         if ("GET".equals(req.httpRequestType())) {
-
-            ownTopic.putIfAbsent(req.getParam(), new ConcurrentLinkedQueue<>());
-            topic.get(req.getParam()).add(
-                    req.httpRequestType() + " " + req.getSourceName() + " " + req.getPoohMode() + " " + req.getParam());
-
+            String topic = queue.get(req.getSourceName()).poll();
+            ConcurrentLinkedQueue<String> clq = new ConcurrentLinkedQueue<>();
+            if ("".equals(topic)) {
+                clq.add(topic);
+                queue.put(req.getSourceName(), clq);
+                recipients.putIfAbsent(req.getParam(), clq);
+                return new Resp("", "204");
+            }
+            return new Resp(req.getSourceName(), recipients.get(req.getParam()).poll());
         }
-        return null;
+        return new Resp("", "204");
     }
 }

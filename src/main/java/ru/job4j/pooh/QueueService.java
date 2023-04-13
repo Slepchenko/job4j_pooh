@@ -5,9 +5,12 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class QueueService implements Service {
+
+    private Map<String, ConcurrentLinkedQueue<String>> queue = new ConcurrentHashMap<>();
+
     @Override
     public Resp process(Req req) {
-        Map<String, ConcurrentLinkedQueue<String>> queue = new ConcurrentHashMap<>();
+
         ConcurrentLinkedQueue<String> clq = new ConcurrentLinkedQueue<>();
         if ("POST".equals(req.httpRequestType())) {
             queue.putIfAbsent(req.getSourceName(), clq);
