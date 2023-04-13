@@ -31,7 +31,7 @@ public class TopicService implements Service {
                 recipients.putIfAbsent(req.getParam(), clq);
                 return new Resp("", "204");
             }
-            return new Resp(req.getSourceName(), recipients.get(req.getParam()).poll());
+            return new Resp(req.getSourceName(), "200");
         }
         return new Resp("", "204");
     }
