@@ -7,7 +7,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class TopicService implements Service {
 
     private Map<String, ConcurrentLinkedQueue<String>> queue = new ConcurrentHashMap<>();
-    private Map<String, ConcurrentLinkedQueue<String>> recipients = new ConcurrentHashMap<>();
+    private Map<String, Map<String, ConcurrentLinkedQueue<String>>> recipients = new ConcurrentHashMap<>();
 
     @Override
     public Resp process(Req req) {
@@ -23,7 +23,7 @@ public class TopicService implements Service {
             return new Resp(req.getParam(), "200");
         }
         if ("GET".equals(req.httpRequestType())) {
-            String topic = queue.get(req.getSourceName()).poll();
+            String topic = queue.getOrDefault(req.getSourceName(), new ConcurrentLinkedQueue<>()).poll();
             ConcurrentLinkedQueue<String> clq = new ConcurrentLinkedQueue<>();
             if ("".equals(topic)) {
                 clq.add(topic);
@@ -31,7 +31,7 @@ public class TopicService implements Service {
                 recipients.putIfAbsent(req.getParam(), clq);
                 return new Resp("", "204");
             }
-            return new Resp(req.getSourceName(), "200");
+            return new Resp(req.getParam(), "200");
         }
         return new Resp("", "204");
     }

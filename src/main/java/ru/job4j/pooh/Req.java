@@ -18,6 +18,10 @@ public class Req {
 
     public static Req of(String content) {
         String[] lines = content.split(System.lineSeparator());
+        if (lines.length == 1) {
+            String[] parameters = lines[0].split(" ");
+            return new Req(parameters[0], parameters[1], parameters[2], parameters[3]);
+        }
         String type = lines[0].split(" ")[0];
         String[] modes = lines[0].split(" ")[1].split("/");
         Req req = null;
