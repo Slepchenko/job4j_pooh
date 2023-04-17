@@ -26,7 +26,8 @@ public class TopicServiceTest {
                 new Req("GET", "topic", "weather", paramForSubscriber1)
         );
         /* Режим topic. Пытаемся забрать данные из индивидуальной очереди в топике weather. Очередь client6565.
-        Эта очередь отсутствует, т.к. client6565 еще не был подписан, поэтому он получит пустую строку. Будет создана индивидуальная очередь для client6565 */
+        Эта очередь отсутствует, т.к. client6565 еще не был подписан, поэтому он получит пустую строку.
+        Будет создана индивидуальная очередь для client6565 */
         Resp result2 = topicService.process(
                 new Req("GET", "topic", "weather", paramForSubscriber2)
         );
