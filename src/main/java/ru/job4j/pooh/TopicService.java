@@ -9,12 +9,12 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class TopicService implements Service {
 
     private Map<String, Map<String, ConcurrentLinkedQueue<String>>> topics = new ConcurrentHashMap<>();
-    private Map<String, ConcurrentLinkedQueue<String>> recipients = new ConcurrentHashMap<>();
+
     private Queue<String> topicQueue = new ConcurrentLinkedQueue<>();
 
     @Override
     public Resp process(Req req) {
-
+        Map<String, ConcurrentLinkedQueue<String>> recipients = new ConcurrentHashMap<>();
         StringBuilder topicStr = new StringBuilder();
         topicStr.append(req.httpRequestType()).append(" ")
                 .append(req.getPoohMode()).append(" ")
@@ -29,10 +29,14 @@ public class TopicService implements Service {
             }
         }
         if ("GET".equals(req.httpRequestType())) {
-
             if (topics.putIfAbsent(req.getSourceName(), recipients) != null) {
-
+                topics.get(req.getSourceName()).putIfAbsent(req.getParam(), new ConcurrentLinkedQueue<>());
+                return new Resp(req.getSourceName(), "");
             }
+            if (topics.get(req.getSourceName()).putIfAbsent(req.getParam(), new ConcurrentLinkedQueue<>()) != null) {
+                return new Resp(topics.get(req.getSourceName()).get(req.getParam()).poll(), "200");
+            }
+            return new Resp(topics.get(req.getSourceName()).get(req.getParam()).poll(), "200");
         }
         return new Resp("", "204");
     }
