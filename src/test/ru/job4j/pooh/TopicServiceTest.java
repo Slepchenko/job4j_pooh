@@ -31,7 +31,49 @@ public class TopicServiceTest {
         Resp result2 = topicService.process(
                 new Req("GET", "topic", "weather", paramForSubscriber2)
         );
+
         assertThat(result1.text(), is("temperature=18"));
         assertThat(result2.text(), is(""));
+    }
+
+    @Test
+    public void whenTwoTopics() {
+        TopicService topicService = new TopicService();
+        String paramForPublisher = "temperature=18";
+        String paramForPublisher1 = "event=Sheveluch_eruption";
+        String paramForPublisher2 = "temperature=5";
+        String paramForPublisher3 = "temperature=30";
+        String paramForSubscriber = "client407";
+        topicService.process(
+                new Req("GET", "topic", "weather", paramForSubscriber)
+        );
+        topicService.process(
+                new Req("POST", "topic", "weather", paramForPublisher)
+        );
+        topicService.process(
+                new Req("GET", "topic", "news", paramForSubscriber)
+        );
+        topicService.process(
+                new Req("POST", "topic", "weather", paramForPublisher2)
+        );
+        topicService.process(
+                new Req("POST", "topic", "weather", paramForPublisher3)
+        );
+        topicService.process(
+                new Req("POST", "topic", "news", paramForPublisher1)
+        );
+        Resp result1 = topicService.process(
+                new Req("GET", "topic", "weather", paramForSubscriber)
+        );
+        Resp result2 = topicService.process(
+                new Req("GET", "topic", "weather", paramForSubscriber)
+        );
+        Resp result3 = topicService.process(
+                new Req("GET", "topic", "news", paramForSubscriber)
+        );
+
+        assertThat(result1.text(), is("temperature=18"));
+        assertThat(result2.text(), is("temperature=5"));
+        assertThat(result3.text(), is("event=Sheveluch_eruption"));
     }
 }
