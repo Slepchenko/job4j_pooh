@@ -10,7 +10,6 @@ public class QueueService implements Service {
 
     @Override
     public Resp process(Req req) {
-
         ConcurrentLinkedQueue<String> clq = new ConcurrentLinkedQueue<>();
         if ("POST".equals(req.httpRequestType())) {
             queue.putIfAbsent(req.getSourceName(), clq);
@@ -19,14 +18,11 @@ public class QueueService implements Service {
             return new Resp(req.getParam(), "200");
         }
         if ("GET".equals(req.httpRequestType())) {
-            String res = "";
             if (!queue.isEmpty()) {
-                res = queue.getOrDefault(req.getSourceName(), clq).poll();
+                String res = queue.getOrDefault(req.getSourceName(), clq).poll();
                 res = Req.of(res).getParam();
                 return new Resp(res, "200");
             }
-
-            return new Resp(res, "204");
         }
         return new Resp("", "204");
     }
