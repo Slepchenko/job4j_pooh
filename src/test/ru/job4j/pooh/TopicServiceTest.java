@@ -76,4 +76,57 @@ public class TopicServiceTest {
         assertThat(result2.text(), is("temperature=5"));
         assertThat(result3.text(), is("event=Sheveluch_eruption"));
     }
+
+    @Test
+    public void whenThreeSubscribersInOneTopics() {
+        TopicService topicService = new TopicService();
+        String paramForPublisher = "temperature=18";
+        String paramForSubscriber1 = "client407";
+        String paramForSubscriber2 = "client6565";
+        String paramForSubscriber3 = "client999";
+        topicService.process(
+                new Req("GET", "topic", "weather", paramForSubscriber1)
+        );
+        topicService.process(
+                new Req("GET", "topic", "weather", paramForSubscriber2)
+        );
+        topicService.process(
+                new Req("GET", "topic", "weather", paramForSubscriber3)
+        );
+        topicService.process(
+                new Req("POST", "topic", "weather", paramForPublisher)
+        );
+        Resp result = topicService.process(
+                new Req("GET", "topic", "weather", paramForSubscriber2)
+        );
+        assertThat(result.text(), is("temperature=18"));
+    }
+
+    @Test
+    public void whenNoDataTopics() {
+        TopicService topicService = new TopicService();
+        String paramForPublisher = "temperature=18";
+        String paramForSubscriber1 = "client407";
+
+        topicService.process(
+                new Req("GET", "topic", "weather", paramForSubscriber1)
+        );
+
+        topicService.process(
+                new Req("POST", "topic", "weather", paramForPublisher)
+        );
+
+        topicService.process(
+                new Req("GET", "topic", "weather", paramForSubscriber1)
+        );
+        Resp result1 = topicService.process(
+                new Req("GET", "topic", "weather", paramForSubscriber1)
+        );
+
+        Resp result2 = topicService.process(
+                new Req("GET", "topic", "news", paramForSubscriber1)
+        );
+        assertThat(result1.text(), is(""));
+        assertThat(result2.text(), is(""));
+    }
 }

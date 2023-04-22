@@ -10,7 +10,7 @@ public class TopicService implements Service {
 
     @Override
     public Resp process(Req req) {
-        Map<String, ConcurrentLinkedQueue<String>> recipients = new ConcurrentHashMap<>();
+        Map<String, ConcurrentLinkedQueue<String>> subscribers = new ConcurrentHashMap<>();
         StringBuilder reqStr = new StringBuilder();
         reqStr.append(req.httpRequestType()).append(" ")
                 .append(req.getPoohMode()).append(" ")
@@ -20,18 +20,21 @@ public class TopicService implements Service {
             if (topics.containsKey(req.getSourceName())) {
                 for (String name : topics.get(req.getSourceName()).keySet()) {
                     topics.get(req.getSourceName()).get(name).add(reqStr.toString());
-                    return new Resp(reqStr.toString(), "200");
                 }
+                return new Resp(reqStr.toString(), "200");
             }
             return new Resp("", "204");
         }
         if ("GET".equals(req.httpRequestType())) {
-            if (topics.putIfAbsent(req.getSourceName(), recipients) == null) {
+            if (topics.putIfAbsent(req.getSourceName(), subscribers) == null) {
                 topics.get(req.getSourceName()).put(req.getParam(), new ConcurrentLinkedQueue<>());
                 return new Resp("", "200");
             }
             if (topics.get(req.getSourceName()).putIfAbsent(req.getParam(), new ConcurrentLinkedQueue<>()) == null) {
                 return new Resp("", "200");
+            }
+            if (topics.get(req.getSourceName()).get(req.getParam()).isEmpty()) {
+                return new Resp("", "204");
             }
             return new Resp(Req.of(topics.get(req.getSourceName()).get(req.getParam()).poll()).getParam(), "200");
         }
